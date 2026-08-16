@@ -1,0 +1,104 @@
+services:
+  # 1. Relational Database & Audit Log Store
+  postgres:
+    image: postgres:16-alpine
+    container_name: aic-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_dev_secret_change_in_prod}
+      POSTGRES_DB: ${POSTGRES_DB:-aic_reconciliation}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-aic_reconciliation}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aic_network
+
+  # 2. Python Document Understanding & OCR Service
+  ai-service:
+    build:
+      context: ../ai-service
+      dockerfile: Dockerfile
+    container_name: aic-ai-service
+    restart: unless-stopped
+    ports:
+      - "${AI_PORT:-8100}:8100"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: ${AI_PORT:-8100}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - aic_network
+
+  # 3. Go BFF, Deterministic Pricing & Business Workflow Engine
+  backend-api:
+    build:
+      context: ../backend-api
+      dockerfile: Dockerfile
+    container_name: aic-backend-api
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: ${BACKEND_PORT:-8080}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres_dev_secret_change_in_prod}@postgres:5432/${POSTGRES_DB:-aic_reconciliation}?sslmode=disable
+      AI_SERVICE_URL: http://ai-service:8100
+      SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+      CONFIG_VERSION: ${CONFIG_VERSION:-0.1.0}
+      WORKER_POLL_INTERVAL_SECONDS: ${WORKER_POLL_INTERVAL_SECONDS:-5}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - aic_network
+
+  # 4. Next.js Reviewer Workspace & Evidence Viewer
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: aic-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      NEXT_PUBLIC_SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+    depends_on:
+      - backend-api
+    networks:
+      - aic_network
+
+networks:
+  aic_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  storage_data:
+    driver: local

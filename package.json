@@ -1,0 +1,19 @@
+{
+  "name": "@aic/infra",
+  "version": "0.1.0",
+  "description": "Database migrations, centralized business policies, and Docker Compose orchestration",
+  "scripts": {
+    "up": "docker compose up --build",
+    "down": "docker compose down",
+    "health": "python scripts/check_health.py"
+  },
+  "keywords": [
+    "infra",
+    "docker-compose",
+    "migrations",
+    "postgresql",
+    "policies"
+  ],
+  "author": "COMPFEST 18 AIC Team",
+  "license": "UNLICENSED"
+}

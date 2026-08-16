@@ -1,0 +1,10 @@
+# Centralized Deterministic Pricing Calculation Policies
+# Reference: PRD_MVP.md §29, §62
+
+pricing:
+  currency_default: "IDR"
+  rounding_method: "ROUND_HALF_UP"
+  standard_vat_percent: 0.0          # 0% for standard B2B freight transportation
+  minimum_floor_charge_idr: 0
+  allow_negative_difference: true    # Track underbilling (invoice lower than expected)
+  tax_inclusive_calculation: false

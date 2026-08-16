@@ -1,0 +1,27 @@
+# Centralized Business Policies & Operational Thresholds
+# Evidence-First AI 3PL Invoice Reconciliation Engine
+# Reference: PRD_MVP.md §7, §8, §9, §26, §27, §38, §62
+
+matching:
+  auto_match_threshold: 0.95        # Scores >= 0.95 are eligible for automated matching
+  human_review_min_threshold: 0.80  # Scores between 0.80 and 0.9499 require human review; < 0.80 unmatched
+  weights:
+    id_similarity: 0.35
+    awb_similarity: 0.20
+    date_similarity: 0.15
+    origin_similarity: 0.10
+    destination_similarity: 0.10
+    weight_similarity: 0.10
+
+materiality:
+  absolute_threshold_idr: 50000     # Discrepancies >= Rp50.000 are flagged as material
+  relative_threshold_ratio: 0.02    # Discrepancies >= 2% of expected amount are flagged as material
+
+document_quality:
+  classification_min_confidence: 0.90
+  ocr_min_confidence: 0.85
+  signature_min_confidence: 0.80
+
+risk_scoring:
+  deadline_warning_days: 7          # Urgent warning when dispute window has <= 7 days remaining
+  high_financial_exposure_idr: 1000000

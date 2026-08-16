@@ -1,0 +1,29 @@
+# Document Types Taxonomy & Ingestion Rules
+# Reference: PRD_MVP.md §3, §19, §20
+
+document_ingestion:
+  max_file_size_bytes: 26214400      # 25 Megabytes maximum upload size
+  allowed_extensions:
+    - ".pdf"
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".heic"
+  allowed_mime_types:
+    - "application/pdf"
+    - "image/jpeg"
+    - "image/png"
+    - "image/heic"
+  supported_document_types:
+    - code: "INVOICE"
+      name: "3PL Freight Invoice"
+      description: "Commercial logistics billing invoice containing line items, weights, and charges."
+    - code: "SURAT_JALAN"
+      name: "Surat Jalan / Delivery Order"
+      description: "Origin warehouse dispatch document with physical scale measurements."
+    - code: "POD"
+      name: "Proof of Delivery"
+      description: "Destination cargo receipt with recipient wet signature & company seal."
+    - code: "RATE_AGREEMENT"
+      name: "Commercial Rate Agreement"
+      description: "Agreed contractual rate card, weight tiers, and fuel surcharge formulas."

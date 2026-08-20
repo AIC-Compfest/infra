@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS shipment_events (
     calculation_trace TEXT,
     
     -- Reconciliation State
-    status VARCHAR(50) DEFAULT 'MATCH' CHECK (status IN ('MATCH', 'EXCEPTION', 'MISSING', 'DUPLICATE', 'INSUFFICIENT_EVIDENCE')),
+    status VARCHAR(50) DEFAULT 'MATCH' CHECK (status IN ('MATCH', 'EXCEPTION', 'MISSING', 'DUPLICATE', 'INSUFFICIENT_EVIDENCE', 'APPROVED', 'DISPUTED', 'REJECTED', 'RESOLVED')),
     priority_score NUMERIC(5, 2) DEFAULT 0.0,
     requires_human_review BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()

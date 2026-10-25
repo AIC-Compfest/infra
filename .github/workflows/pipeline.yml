@@ -19,21 +19,24 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate stack file
-        shell: bash
+        env:
+          APP_ENV: production
+          AI_PORT: 8100
+          BACKEND_PORT: 8080
+          FRONTEND_PORT: 3000
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          SCHEMA_VERSION: 0.1.0
+          CONFIG_VERSION: 0.1.0
         run: |
           FILE="docker-stack.yml"
           if [ ! -f "$FILE" ]; then
             FILE="docker-compose.yml"
           fi
-
-          if [ ! -f "$FILE" ]; then
-            echo "Missing docker-stack.yml or docker-compose.yml"
-            exit 1
-          fi
-
-          echo "Using stack file: $FILE"
-          docker compose -f "$FILE" config > /tmp/stack-config.txt
-          cat /tmp/stack-config.txt
+          docker compose -f "$FILE" config
 
   build-and-push:
     name: Build and Push

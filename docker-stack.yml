@@ -1,0 +1,75 @@
+services:
+  ai-service:
+    image: ghcr.io/aic-compfest/ai-service:${AI_SERVICE_TAG:-latest}
+    ports:
+      - "${AI_PORT:-8100}:8100"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: ${AI_PORT:-8100}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+    networks:
+      - aic_network
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: any
+
+  backend-api:
+    image: ghcr.io/aic-compfest/backend-api:${BACKEND_API_TAG:-latest}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      PORT: ${BACKEND_PORT:-8080}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      SUPABASE_URL: ${SUPABASE_URL:?SUPABASE_URL must be provided}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:?SUPABASE_PUBLISHABLE_KEY must be provided}
+      AI_SERVICE_URL: http://ai-service:8100
+      SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+      CONFIG_VERSION: ${CONFIG_VERSION:-0.1.0}
+      WORKER_POLL_INTERVAL_SECONDS: ${WORKER_POLL_INTERVAL_SECONDS:-5}
+      AI_SERVICE_TIMEOUT_SECONDS: ${AI_SERVICE_TIMEOUT_SECONDS:-120}
+    secrets:
+      - SUPABASE_SERVICE_ROLE_KEY
+      - JWT_SECRET
+    depends_on:
+      - ai-service
+    networks:
+      - aic_network
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: any
+
+  frontend:
+    image: ghcr.io/aic-compfest/frontend:${FRONTEND_TAG:-latest}
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL must be provided}
+      BACKEND_API_URL: http://backend-api:8080
+      NEXT_PUBLIC_SCHEMA_VERSION: ${SCHEMA_VERSION:-0.1.0}
+    networks:
+      - aic_network
+    depends_on:
+      - backend-api
+    deploy:
+      update_config:
+        order: start-first
+      restart_policy:
+        condition: any
+
+networks:
+  aic_network:
+    driver: overlay
+
+secrets:
+  SUPABASE_SERVICE_ROLE_KEY:
+    external: true
+  JWT_SECRET:
+    external: true

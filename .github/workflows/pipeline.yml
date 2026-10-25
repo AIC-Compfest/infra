@@ -67,6 +67,17 @@ jobs:
           else
             echo "No Dockerfile in this repo; deployment will use the images from the app repos."
           fi
+      
+      - name: Check required secrets
+        shell: bash
+        run: |
+          for v in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY JWT_SECRET NEXT_PUBLIC_API_URL; do
+            if [ -z "${!v}" ]; then
+              echo "MISSING: $v"
+            else
+              echo "OK: $v"
+            fi
+          done
 
       - name: Validate final stack config
         shell: bash

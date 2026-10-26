@@ -1,4 +1,16 @@
 services:
+  traefik:
+    image: traefik:v3.7
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   ai-service:
     image: ghcr.io/aic-compfest/ai-service:${AI_SERVICE_TAG:-latest}
     ports:

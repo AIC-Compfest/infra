@@ -2,11 +2,14 @@ services:
   traefik:
     image: traefik:v3.7
     command:
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.swarm=true"
+      - "--providers.swarm.exposedbydefault=false"
+      - "--providers.swarm.network=verflo_aic_network"
       - "--entryPoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=elliott@zenful.site"
+      - "--certificatesresolvers.myresolver.acme.email=deploy@verflo.id"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
@@ -20,9 +23,22 @@ services:
         protocol: tcp
         published: 443
         target: 443
+      - target: 8080
+        published: 8081
+        host_ip: 127.0.0.1
+        protocol: tcp
+        mode: host
     volumes:
       - letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - aic_network
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
 
   ai-service:
     image: ghcr.io/aic-compfest/ai-service:${AI_SERVICE_TAG:-latest}
@@ -71,12 +87,6 @@ services:
 
   frontend:
     image: ghcr.io/aic-compfest/frontend:${FRONTEND_TAG:-latest}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.web.loadbalancer.server.port=8081"
-      - "traefik.http.routers.web.rule=Host(`zenful.site`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
@@ -90,6 +100,14 @@ services:
     depends_on:
       - backend-api
     deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=verflo_aic_network"
+        - "traefik.http.services.web.loadbalancer.server.port=3000"
+        - "traefik.http.routers.web.rule=Host(`verflo.id`)"
+        - "traefik.http.routers.web.entrypoints=websecure"
+        - "traefik.http.routers.web.tls=true"
+        - "traefik.http.routers.web.tls.certresolver=myresolver"
       update_config:
         order: start-first
       restart_policy:

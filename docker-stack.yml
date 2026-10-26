@@ -86,8 +86,8 @@ services:
 
   frontend:
     image: ghcr.io/aic-compfest/frontend:${FRONTEND_TAG:-latest}
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+    # ports:
+    #   - "${FRONTEND_PORT:-3000}:3000"
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -103,7 +103,7 @@ services:
         - "traefik.enable=true"
         - "traefik.swarm.network=verflo_aic_network"
         - "traefik.http.services.web.loadbalancer.server.port=3000"
-        - "traefik.http.routers.web.rule=Host(`verflo.id`)"
+        - "traefik.http.routers.web.rule=Host(`verflo.id`) || Host(`www.verflo.id`)"
         - "traefik.http.routers.web.entrypoints=websecure"
         - "traefik.http.routers.web.tls=true"
         - "traefik.http.routers.web.tls.certresolver=myresolver"

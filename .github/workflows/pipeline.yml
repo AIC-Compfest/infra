@@ -145,3 +145,10 @@ jobs:
           user: ${{ secrets.VPS_USER }}
           ssh_key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           env_file: ./envfile
+
+          registry_host: ghcr.io
+          registry_user: ${{ github.actor }}
+          registry_pass: ${{ secrets.GITHUB_TOKEN }}
+          registry_auth: true
+
+          detach: false

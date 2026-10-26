@@ -3,6 +3,9 @@ name: pipeline
 on:
   repository_dispatch:
     types: [service-updated]
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:

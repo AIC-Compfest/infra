@@ -40,7 +40,7 @@ services:
         condition: any
 
   ai-service:
-    image: ghcr.io/aic-compfest/ai-service:${AI_SERVICE_TAG:-latest}
+    image: ghcr.io/aic-compfest/ai-service:sha-${AI_SERVICE_TAG:-latest}
     ports:
       - "${AI_PORT:-8100}:8100"
     environment:
@@ -57,7 +57,7 @@ services:
         condition: any
 
   backend-api:
-    image: ghcr.io/aic-compfest/backend-api:${BACKEND_API_TAG:-latest}
+    image: ghcr.io/aic-compfest/backend-api:sha-${BACKEND_API_TAG:-latest}
     # ports:
     #   - "${BACKEND_PORT:-8080}:8080"
     environment:
@@ -93,7 +93,7 @@ services:
         condition: any
 
   frontend:
-    image: ghcr.io/aic-compfest/frontend:${FRONTEND_TAG:-latest}
+    image: ghcr.io/aic-compfest/frontend:sha-${FRONTEND_TAG:-latest}
     # ports:
     #   - "${FRONTEND_PORT:-3000}:3000"
     environment:

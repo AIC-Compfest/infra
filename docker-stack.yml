@@ -2,8 +2,8 @@ services:
   traefik:
     image: traefik:v3.7
     command:
-      - "--api.dashboard=true"
-      - "--api.insecure=true"
+      # - "--api.dashboard=true"
+      # - "--api.insecure=true"
       - "--providers.swarm=true"
       - "--providers.swarm.exposedbydefault=false"
       - "--providers.swarm.network=verflo_aic_network"
@@ -58,8 +58,8 @@ services:
 
   backend-api:
     image: ghcr.io/aic-compfest/backend-api:${BACKEND_API_TAG:-latest}
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
+    # ports:
+    #   - "${BACKEND_PORT:-8080}:8080"
     environment:
       APP_ENV: ${APP_ENV:-development}
       PORT: ${BACKEND_PORT:-8080}
@@ -79,6 +79,14 @@ services:
     networks:
       - aic_network
     deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.swarm.network=verflo_aic_network"
+        - "traefik.http.services.api.loadbalancer.server.port=8080"
+        - "traefik.http.routers.api.rule=Host(`api.verflo.id`)"
+        - "traefik.http.routers.api.entrypoints=websecure"
+        - "traefik.http.routers.api.tls=true"
+        - "traefik.http.routers.api.tls.certresolver=myresolver"
       update_config:
         order: start-first
       restart_policy:

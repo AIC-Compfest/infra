@@ -152,3 +152,15 @@ jobs:
           registry_auth: true
 
           detach: false
+      
+      - name: Clean up old Docker data on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            docker container prune -f
+            docker image prune -af --filter "until=168h"
+            docker builder prune -af --filter "until=168h"
+            docker system df

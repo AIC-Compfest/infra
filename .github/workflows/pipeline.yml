@@ -32,6 +32,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          AI_SERVICE_URL: ${{ secrets.AI_SERVICE_URL }}
           SCHEMA_VERSION: 0.1.0
           CONFIG_VERSION: 0.1.0
         run: |
@@ -74,7 +75,7 @@ jobs:
       - name: Check required secrets
         shell: bash
         run: |
-          for v in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY JWT_SECRET NEXT_PUBLIC_API_URL; do
+          for v in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY SUPABASE_SERVICE_ROLE_KEY JWT_SECRET NEXT_PUBLIC_API_URL AI_SERVICE_URL; do
             if [ -z "${!v}" ]; then
               echo "MISSING: $v"
             else
@@ -94,6 +95,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          AI_SERVICE_URL: ${{ secrets.AI_SERVICE_URL }}
           SCHEMA_VERSION: 0.1.0
           CONFIG_VERSION: 0.1.0
         run: |
